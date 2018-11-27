@@ -1,8 +1,5 @@
 This is a repository for code common to DAZSLE analyses, i.e. an attempt to consolidate the divergent branches of ZPrimePlusJet. No analysis-specific code should be added.
 
-### Data:
-- data/SimpleN2DDT: 3D histograms (N2 vs pt vs rho) from QCD MC for computing simple N2DDT on the fly
-
 ### C++ classes:
 - Class BaconTree: TTree:MakeSelector()s for bacon bits
    - Derived class BaconData adds some useful functions, like selecting the jet of interest and computing N2DDT.
@@ -16,3 +13,6 @@ This is a repository for code common to DAZSLE analyses, i.e. an attempt to cons
 ### python helpers:
 - python/cross_sections.py: cross sections of MC samples
 - python/seaborn_colors: provides colors from the Seaborn module.
+
+### Data:
+- data/SimpleN2DDT: 3D histograms (N2 vs pt vs rho) from QCD MC for computing simple N2DDT on the fly
