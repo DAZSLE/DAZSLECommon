@@ -1,7 +1,7 @@
 #ifndef BaconData_cc
 #define BaconData_cc
 
-#include "DAZSLE/PhiBBPlusJet/interface/BaconData.h"
+#include "DAZSLE/DAZSLECommon/interface/BaconData.h"
 
 BaconData::BaconData(TTree *tree) : BaconTree(tree) {
 	// Default configs

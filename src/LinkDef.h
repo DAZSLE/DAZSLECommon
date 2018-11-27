@@ -1,11 +1,9 @@
-#include "DAZSLE/PhiBBPlusJet/interface/BaconTree.h"
-#include "DAZSLE/PhiBBPlusJet/interface/BaconData.h"
-#include "DAZSLE/PhiBBPlusJet/interface/BaconEventCutFunctions.h"
+#include "DAZSLE/DAZSLECommon/interface/BaconTree.h"
+#include "DAZSLE/DAZSLECommon/interface/BaconData.h"
 
 #ifdef __CINT__
-#pragma extra_include "DAZSLE/PhiBBPlusJet/interface/BaconTree.h";
-#pragma extra_include "DAZSLE/PhiBBPlusJet/interface/BaconData.h";
-#pragma extra_include "DAZSLE/PhiBBPlusJet/interface/BaconEventCutFunctions.h";
+#pragma extra_include "DAZSLE/DAZSLECommon/interface/BaconTree.h";
+#pragma extra_include "DAZSLE/DAZSLECommon/interface/BaconData.h";
 #endif
 
 #ifdef __CINT__
@@ -20,6 +18,4 @@
 #ifdef __CINT__
 #pragma link C++ class BaconTree+;
 #pragma link C++ class BaconData+;
-#pragma link C++ namespace BaconEventCutFunctions+;
-#pragma link C++ function BaconEventCutFunctions::Configure;
 #endif

@@ -1,6 +1,6 @@
 #ifndef BaconTree_cxx
 #define BaconTree_cxx
-#include "DAZSLE/PhiBBPlusJet/interface/BaconTree.h"
+#include "DAZSLE/DAZSLECommon/interface/BaconTree.h"
 #include <TH2.h>
 #include <TStyle.h>
 #include <TCanvas.h>

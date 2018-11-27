@@ -2,7 +2,7 @@
 #define BaconData_h
 
 #include <typeinfo>
-#include "DAZSLE/PhiBBPlusJet/interface/BaconTree.h"
+#include "DAZSLE/DAZSLECommon/interface/BaconTree.h"
 #include "TMath.h"
 #include "TH1D.h"
 #include "TF1.h"
