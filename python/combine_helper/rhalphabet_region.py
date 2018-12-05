@@ -17,18 +17,19 @@ class RhalphabetRegion():
 		self._background_names_fail = []
 		self._backgrounds_pass = {}
 		self._backgrounds_fail = {}
-		self._signal_name = None
-		self._signal_pass = None
-		self._signal_fail = None
+		self._signal_names_pass = []
+		self._signal_names_fail = []
+		self._signals_pass = {}
+		self._signals_fail = {}
 		self._data_pass = None
 		self._data_fail = None
 		self._xvar = None
 		self._rhbackground_name = None
 
-		self._systematics_norm_pass = {} # {syst_name : {process : unc.}}
-		self._systematics_norm_fail = {} # {syst_name : {process : unc.}}
-		self._systematics_shape_pass = {} # {syst_name : {process : [value, hist_up, hist_down]}}
-		self._systematics_shape_fail = {} # {syst_name : {process : [value, hist_up, hist_down]}}
+		self._systematics_norm = {} # {syst_name : {process : (pass unc., fail unc.)}}
+		self._systematics_shape = {} # {syst_name : {process : number of sigma for shape variations}}
+		self._systematics_shape_hists_pass = {} # {syst_name : {process : value, hist_up, hist_down]}}
+		self._systematics_shape_hists_fail = {} # {syst_name : {process : [value, hist_up, hist_down]}}
 
 		self._save_vars = [] # List of RooFit variables, to ensure they don't get garbage collected early 
 
@@ -36,7 +37,7 @@ class RhalphabetRegion():
 		return self._region_name
 
 	def add_xvar(self, xvar):
-		print "[Region::add_xvar] DEBUG : Adding xvar: ",
+		print "[RhalpabetRegion::add_xvar] DEBUG : Adding xvar: ",
 		print xvar
 		self._xvar = xvar
 
@@ -45,49 +46,79 @@ class RhalphabetRegion():
 			print "[RhalphabetRegion::add_simple_background] ERROR : Attempt to add a simple background after rhalphabet background. The rhalphabet background must be added last, since it requires knowing data-sum(mc backgrounds)."
 			sys.exit(1)
 		if not self._xvar:
-			print "[Region::add_background] ERROR : Need to add an independent variable with add_xvar(xvar) first."
+			print "[RhalpabetRegion::add_background] ERROR : Need to add an independent variable with add_xvar(xvar) first."
 			sys.exit(1)
 		if pass_hist:
 			if pass_hist.Integral() == 0:
-				print "[Region::add_background] WARNING : Pass histogram from background {}, region {} has zero norm. Ignoring.".format(bkgd_name, self._region_name)
+				print "[RhalpabetRegion::add_background] WARNING : Pass histogram from background {}, region {} has zero norm. Ignoring.".format(bkgd_name, self._region_name)
 			else:
 				self._background_names_pass.append(bkgd_name)
 				self._backgrounds_pass[bkgd_name] = RoofitHistContainer(pass_hist, self._xvar, name="{}_pass_{}".format(bkgd_name, self._region_name), normalization_var=normalization_var)
 		if fail_hist:
 			if fail_hist.Integral() == 0:
-				print "[Region::add_background] WARNING : Fail histogram from background {}, region {} has zero norm. Ignoring.".format(bkgd_name, self._region_name)
+				print "[RhalpabetRegion::add_background] WARNING : Fail histogram from background {}, region {} has zero norm. Ignoring.".format(bkgd_name, self._region_name)
 			else:
 				self._background_names_fail.append(bkgd_name)
 				self._backgrounds_fail[bkgd_name] = RoofitHistContainer(fail_hist, self._xvar, name="{}_fail_{}".format(bkgd_name, self._region_name), normalization_var=normalization_var)
 
 	def add_signal(self, signal_name, pass_hist, fail_hist, normalization_var=None):
 		if not self._xvar:
-			print "[Region::add_signal] ERROR : Need to add an independent variable with add_xvar(xvar) first."
+			print "[RhalpabetRegion::add_signal] ERROR : Need to add an independent variable with add_xvar(xvar) first."
 			sys.exit(1)
-		self._signal_name = signal_name
 		if pass_hist:
-			self._signal_pass = RoofitHistContainer(pass_hist, self._xvar, name="{}_{}".format(signal_name, self._region_name), normalization_var=normalization_var)
+			if pass_hist.Integral() == 0:
+				print "[RhalpabetRegion::add_signal] WARNING : Pass histogram from signal {}, region {} has zero norm. Ignoring.".format(signal_name, self._region_name)
+			else:
+				self._signal_names_pass.append(signal_name)
+				self._signals_pass[signal_name] = RoofitHistContainer(pass_hist, self._xvar, name="{}_pass_{}".format(signal_name, self._region_name), normalization_var=normalization_var)
 		else:
-			print "[rhalphabet_region::add_signal] ERROR : pass_hist=None, but this is required."
-			sys.exit(1)
+			print "[RhalpabetRegion::add_signal] WARNING : Pass histogram from signal {}, region {} == None. Ignoring".format(signal_name, self._region_name)
 		if fail_hist:
-			self._signal_fail = RoofitHistContainer(fail_hist, self._xvar, name="{}_{}".format(signal_name, self._region_name), normalization_var=normalization_var)
+			if fail_hist.Integral() == 0:
+				print "[RhalpabetRegion::add_signal] WARNING : Fail histogram from signal {}, region {} has zero norm. Ignoring.".format(signal_name, self._region_name)
+			else:
+				self._signal_names_fail.append(signal_name)
+				self._signals_fail[signal_name] = RoofitHistContainer(fail_hist, self._xvar, name="{}_fail_{}".format(signal_name, self._region_name), normalization_var=normalization_var)
+		else:
+			print "[RhalpabetRegion::add_signal] WARNING : Fail histogram from signal {}, region {} == None. Ignoring".format(signal_name, self._region_name)
 
 	def add_data(self, data_name, pass_hist, fail_hist):
 		if self._rhbackground_name != None:
 			print "[RhalphabetRegion::add_simple_background] ERROR : Attempt to add a data after rhalphabet background. The rhalphabet background must be added last, since it requires knowing data-sum(mc backgrounds)."
 			sys.exit(1)
 		if not self._xvar:
-			print "[Region::add_data] ERROR : Need to add an independent variable with add_xvar(xvar) first."
+			print "[RhalpabetRegion::add_data] ERROR : Need to add an independent variable with add_xvar(xvar) first."
 			sys.exit(1)
 		self._data_pass = RoofitHistContainer(pass_hist, self._xvar, name="{}_{}".format(data_name, self._region_name))
 		self._data_fail = RoofitHistContainer(fail_hist, self._xvar, name="{}_{}".format(data_name, self._region_name))
 
-	# unc_values = (unc_pass, unc_fail)
-	def add_norm_systematic(self, syst_name, process, unc_values):
+	# Specify either single unc_value, or pair (unc_pass, unc_fail)
+	def add_norm_systematic(self, syst_name, process, unc_value=None, unc_pass_fail=None):
+		if unc_value is not None and unc_pass_fail is not None:
+			print "[RhalpabetRegion::add_norm_systematic] ERROR : Cannot specify both unc_value and unc_pass_fail."
+			sys.exit(1)
+
 		if not syst_name in self._systematics_norm:
 			self._systematics_norm[syst_name] = {}
-		self._systematics_norm[syst_name][process] = unc_values
+		if unc_value:
+			self._systematics_norm[syst_name][process] = (unc_value, unc_value)
+		elif unc_pass_fail:
+			self._systematics_norm[syst_name][process] = (unc_pass_fail[0], unc_pass_fail[1])
+
+	# varied_hists_(pass|fail) = (hist_up, hist_down)
+	def add_shape_systematic(self, syst_name, process, varied_hists_pass, varied_hists_fail, unc_value=1.0):
+		if not syst_name in self._systematics_shape:
+			self._systematics_shape[syst_name] = {}
+			self._systematics_shape_hists_pass[syst_name + "Up"] = {}
+			self._systematics_shape_hists_pass[syst_name + "Down"] = {}
+			self._systematics_shape_hists_fail[syst_name + "Up"] = {}
+			self._systematics_shape_hists_fail[syst_name + "Down"] = {}
+		self._systematics_shape[syst_name][process] = unc_value
+		self._systematics_shape_hists_pass[syst_name + "Up"][process] = RoofitHistContainer(varied_hists_pass[0], self._xvar, name="{}_{}_{}".format(process, self._region_name, syst_name))
+		self._systematics_shape_hists_pass[syst_name + "Down"][process] = RoofitHistContainer(varied_hists_pass[1], self._xvar, name="{}_{}_{}".format(process, self._region_name, syst_name))		
+		self._systematics_shape_hists_fail[syst_name + "Up"][process] = RoofitHistContainer(varied_hists_fail[0], self._xvar, name="{}_{}_{}".format(process, self._region_name, syst_name))
+		self._systematics_shape_hists_fail[syst_name + "Down"][process] = RoofitHistContainer(varied_hists_fail[1], self._xvar, name="{}_{}_{}".format(process, self._region_name, syst_name))		
+
 
 	def write(self, datacard_path, ws_path):
 		ws_name = "ws_pass_{}".format(self._region_name)
@@ -98,34 +129,48 @@ class RhalphabetRegion():
 			datacard.write("kmax * number of nuisance parameters\n")
 			datacard.write("---------------\n")
 			# shapes * bin_name file wsname:histogramname($PROCESS, $SYSTEMATIC)
-			datacard.write("shapes * fail_{} ws_{}.root ws_fail_{}:$PROCESS_fail_{} ws_fail_{}:$PROCESS_fail_{}_$SYSTEMATIC\n".format(self._region_name, self._region_name, self._region_name, self._region_name, self._region_name, self._region_name))
-			datacard.write("shapes qcd fail_{} ws_{}.root ws_fail_{}:$PROCESS_fail_{}\n".format(self._region_name, self._region_name, self._region_name, self._region_name))
 			datacard.write("shapes * pass_{} ws_{}.root ws_pass_{}:$PROCESS_pass_{} ws_pass_{}:$PROCESS_pass_{}_$SYSTEMATIC\n".format(self._region_name, self._region_name, self._region_name, self._region_name, self._region_name, self._region_name))
 			datacard.write("shapes qcd pass_{} ws_{}.root ws_pass_{}:$PROCESS_pass_{}\n".format(self._region_name, self._region_name, self._region_name, self._region_name))
+			datacard.write("shapes * fail_{} ws_{}.root ws_fail_{}:$PROCESS_fail_{} ws_fail_{}:$PROCESS_fail_{}_$SYSTEMATIC\n".format(self._region_name, self._region_name, self._region_name, self._region_name, self._region_name, self._region_name))
+			datacard.write("shapes qcd fail_{} ws_{}.root ws_fail_{}:$PROCESS_fail_{}\n".format(self._region_name, self._region_name, self._region_name, self._region_name))
 
 			datacard.write("---------------\n")
 			datacard.write("bin pass_{} fail_{}\n".format(self._region_name, self._region_name))
 			datacard.write("observation -1.0 -1.0\n")
 			datacard.write("---------------\n")
-			datacard.write("bin {} {}\n".format((" pass_{}".format(self._region_name))*(len(self._backgrounds_pass)+2), (" fail_{}".format(self._region_name))*(len(self._backgrounds_fail)+2))) # +2 is for signal and QCD, not included in the normal background list
-			datacard.write("process {} {} {} {} {} {}\n".format(self._signal_name, self._rhbackground_name, " ".join(self._backgrounds_pass), self._signal_name, self._rhbackground_name, " ".join(self._backgrounds_fail)))
+			datacard.write("bin {} {}\n".format(
+				(" pass_{}".format(self._region_name))*(len(self._background_names_pass)+len(self._signal_names_pass)+1), 
+				(" fail_{}".format(self._region_name))*(len(self._background_names_fail)+len(self._signal_names_fail)+1))) # +1 is for QCD, not included in the normal background list
+			datacard.write("process {} {} {} {} {} {}\n".format(
+				" ".join(self._signal_names_pass), 
+				self._rhbackground_name, 
+				" ".join(self._background_names_pass), 
+				" ".join(self._signal_names_fail), 
+				self._rhbackground_name, 
+				" ".join(self._background_names_fail)))
 
 			# Make an ordered list of processes for the datacard
-			all_processes = [self._signal_name] + [self._rhbackground_name] + self._background_names_pass + [self._signal_name] + [self._rhbackground_name] + self._background_names_fail
-			pass_processes = [self._signal_name] + [self._rhbackground_name] + self._background_names_pass
-			fail_processes = [self._signal_name] + [self._rhbackground_name] + self._background_names_fail
+			all_processes = self._signal_names_pass + [self._rhbackground_name] + self._background_names_pass + self._signal_names_fail + [self._rhbackground_name] + self._background_names_fail
+			pass_processes = self._signal_names_pass + [self._rhbackground_name] + self._background_names_pass
+			fail_processes = self._signal_names_fail + [self._rhbackground_name] + self._background_names_fail
 
 			# Assign unique index to each process
 			process_indices = {}
-			current_index = 0
-			process_indices[self._signal_name] = current_index
-			current_index += 1
+			current_index = -1 * len(set(self._signal_names_pass + self._signal_names_fail)) + 1
+			for signal_name in self._signal_names_pass:
+				process_indices[signal_name] = current_index
+				current_index += 1
+			for signal_name in self._signal_names_fail:
+				if not signal_name in process_indices:
+					process_indices[signal_name] = current_index
+					current_index += 1
+
 			process_indices[self._rhbackground_name] = current_index
 			current_index += 1
-			for bkgd_name in self._backgrounds_pass:
+			for bkgd_name in self._background_names_pass:
 				process_indices[bkgd_name] = current_index
 				current_index += 1
-			for bkgd_name in self._backgrounds_fail:
+			for bkgd_name in self._background_names_fail:
 				if not bkgd_name in process_indices:
 					process_indices[bkgd_name] = current_index
 					current_index += 1
@@ -167,6 +212,24 @@ class RhalphabetRegion():
 						this_syst_string += " -"
 				datacard.write(this_syst_string + "\n")
 
+
+			for syst_name, process_syst_dict in self._systematics_shape.iteritems():
+				this_shape_syst_string = syst_name + " shape "
+				for process_name in pass_processes:
+					if process_name in self._systematics_shape[syst_name]:
+						this_shape_syst_string += " {}".format(self._systematics_shape[syst_name][process_name])
+					else:
+						this_shape_syst_string += " -"
+
+				for process_name in fail_processes:
+					if process_name in self._systematics_shape[syst_name]:
+						this_shape_syst_string += " {}".format(self._systematics_shape[syst_name][process_name])
+					else:
+						this_shape_syst_string += " -"
+				datacard.write(this_shape_syst_string + "\n")
+
+
+
 		# Create workspace
 		ws_name = "ws_pass_{}".format(self._region_name)
 		ws_pass = ROOT.RooWorkspace(ws_name)
@@ -174,8 +237,9 @@ class RhalphabetRegion():
 			self._backgrounds_pass[background_name].RooDataHist().SetName("{}_pass_{}".format(background_name, self._region_name))
 			getattr(ws_pass, "import")(self._backgrounds_pass[background_name].RooDataHist())
 
-		self._signal_pass.RooDataHist().SetName("{}_pass_{}".format(self._signal_name, self._region_name))
-		getattr(ws_pass, "import")(self._signal_pass.RooDataHist())
+		for signal_name in self._signal_names_pass:
+			self._signals_pass[signal_name].RooDataHist().SetName("{}_pass_{}".format(signal_name, self._region_name))
+			getattr(ws_pass, "import")(self._signals_pass[signal_name].RooDataHist())
 
 		self._data_pass.RooDataHist().SetName("{}_pass_{}".format("data_obs", self._region_name))
 		getattr(ws_pass, "import")(self._data_pass.RooDataHist())
@@ -186,6 +250,13 @@ class RhalphabetRegion():
 		for coeff_list in self._rh_coefficients:
 			for coeff in coeff_list:
 				getattr(ws_pass, "import")(coeff, ROOT.RooFit.RecycleConflictNodes())
+
+		# Shape systematic histograms
+		for syst_name, process_hist_dict in self._systematics_shape_hists_pass.iteritems():
+			for process, roofit_hist_container in process_hist_dict.iteritems():
+				roofit_hist_container.RooDataHist().SetName("{}_pass_{}_{}".format(process, self._region_name, syst_name))
+				getattr(ws_pass, "import")(roofit_hist_container.RooDataHist())
+
 		ws_pass.writeToFile(ws_path)		
 
 		ws_name = "ws_fail_{}".format(self._region_name)
@@ -194,8 +265,9 @@ class RhalphabetRegion():
 			self._backgrounds_fail[background_name].RooDataHist().SetName("{}_fail_{}".format(background_name, self._region_name))
 			getattr(ws_fail, "import")(self._backgrounds_fail[background_name].RooDataHist())
 
-		self._signal_fail.RooDataHist().SetName("{}_fail_{}".format(self._signal_name, self._region_name))
-		getattr(ws_fail, "import")(self._signal_fail.RooDataHist())
+		for signal_name in self._signal_names_fail:
+			self._signals_fail[signal_name].RooDataHist().SetName("{}_fail_{}".format(signal_name, self._region_name))
+			getattr(ws_fail, "import")(self._signals_fail[signal_name].RooDataHist())
 
 		self._data_fail.RooDataHist().SetName("{}_fail_{}".format("data_obs", self._region_name))
 		getattr(ws_fail, "import")(self._data_fail.RooDataHist())
@@ -203,6 +275,13 @@ class RhalphabetRegion():
 		self._rhbackground_fail.SetName("{}_fail_{}".format(self._rhbackground_name, self._region_name))
 		getattr(ws_fail, "import")(self._rhbackground_fail)
 		getattr(ws_fail, "import")(self._rh_fail_norm, ROOT.RooFit.RecycleConflictNodes())
+
+		# Shape systematic histograms
+		for syst_name, process_hist_dict in self._systematics_shape_hists_fail.iteritems():
+			for process, roofit_hist_container in process_hist_dict.iteritems():
+				roofit_hist_container.RooDataHist().SetName("{}_fail_{}_{}".format(process, self._region_name, syst_name))
+				getattr(ws_fail, "import")(roofit_hist_container.RooDataHist())
+
 		ws_fail.writeToFile(ws_path, False)	# False specifies don't recreate file
 
 
@@ -218,8 +297,8 @@ class RhalphabetRegion():
 		for i in xrange(n_x+1):
 			self._rh_coefficients.append([])
 			for j in xrange(n_y+1):
-				coeff_name = "poly_coeff_x{}_y{}{}".format(i, j, rh_tag)
-				self._rh_coefficients[i].append(RooRealVar(coeff_name, coeff_name, initial_coeff_value, -30., 30.))
+				coeff_name = "tfcoeff_x{}_y{}{}".format(i, j, rh_tag)
+				self._rh_coefficients[-1].append(RooRealVar(coeff_name, coeff_name, initial_coeff_value, -30., 30.))
 
 		# Make background templates
 		# Fail: each bin gets a (unconstrained) RooRealVar for the background prediction
@@ -253,13 +332,14 @@ class RhalphabetRegion():
 			
 			# Make polynomials
 			# - First, make a list of polynomials as a function of y (the x polynomial will be built from these)
+			# - Recall: xbin = mSD bin, i=rho order, j=pt order
 			xpoly_variable_list = RooArgList() # List corresponds to the [@0, @1, ...] in the polynomial string
 			for i in xrange(n_x+1):
 				ypoly_variable_list = RooArgList() # List corresponds to the [@0, @1, ...] in the polynomial string
 				for j in xrange(n_y+1):
 					ypoly_variable_list.add(self._rh_coefficients[i][j])
 				ypoly_variable_list.add(poly_yvar)
-				y_poly_name = "subpolynomial_y_xbin{}_{}".format(xbin, self._region_name)
+				y_poly_name = "subpolynomial_y_xbin{}_{}_irho{}".format(xbin, self._region_name, i)
 				y_polynomial = RooFormulaVar(y_poly_name, y_poly_name, polystr_y, ypoly_variable_list)
 				xpoly_variable_list.add(y_polynomial)
 				self._save_vars.append(y_polynomial)
