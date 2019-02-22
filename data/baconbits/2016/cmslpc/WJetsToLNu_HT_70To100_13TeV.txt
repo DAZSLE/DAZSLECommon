@@ -1,0 +1,1 @@
+root://cmsxrootd-site.fnal.gov//store/user/lpchbb/WJetsToLNu_HT_70To100_13TeV.root

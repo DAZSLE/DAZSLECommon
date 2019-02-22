@@ -1,0 +1,1 @@
+-bash: /eos/cms/store/group/phys_exotica/dijet/dazsle/zprimebits-v12.05/JetHTRun2016E_03Feb2017_v1_v3/Output.root_job0_file0_subjob0.root: Permission denied
