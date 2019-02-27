@@ -1,7 +1,7 @@
 #ifndef HistogramManager_cxx
 #define HistogramManager_cxx
 
-#include "MyTools/RootUtils/interface/HistogramManager.h"
+#include "DAZSLE/DAZSLECommon/interface/HistogramManager.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 

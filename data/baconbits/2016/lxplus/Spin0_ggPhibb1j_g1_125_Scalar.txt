@@ -1,0 +1,10 @@
+root://eoscms.cern.ch//eos/cms/store/group/phys_exotica/dijet/dazsle/zprimebits-v12.05/Spin0_ggPhibb1j_g1_125_Scalar/Output.root_job0_file0_subjob0.root
+root://eoscms.cern.ch//eos/cms/store/group/phys_exotica/dijet/dazsle/zprimebits-v12.05/Spin0_ggPhibb1j_g1_125_Scalar/Output.root_job0_file0_subjob1.root
+root://eoscms.cern.ch//eos/cms/store/group/phys_exotica/dijet/dazsle/zprimebits-v12.05/Spin0_ggPhibb1j_g1_125_Scalar/Output.root_job0_file0_subjob2.root
+root://eoscms.cern.ch//eos/cms/store/group/phys_exotica/dijet/dazsle/zprimebits-v12.05/Spin0_ggPhibb1j_g1_125_Scalar/Output.root_job0_file0_subjob3.root
+root://eoscms.cern.ch//eos/cms/store/group/phys_exotica/dijet/dazsle/zprimebits-v12.05/Spin0_ggPhibb1j_g1_125_Scalar/Output.root_job0_file0_subjob4.root
+root://eoscms.cern.ch//eos/cms/store/group/phys_exotica/dijet/dazsle/zprimebits-v12.05/Spin0_ggPhibb1j_g1_125_Scalar/Output.root_job0_file0_subjob5.root
+root://eoscms.cern.ch//eos/cms/store/group/phys_exotica/dijet/dazsle/zprimebits-v12.05/Spin0_ggPhibb1j_g1_125_Scalar/Output.root_job0_file0_subjob6.root
+root://eoscms.cern.ch//eos/cms/store/group/phys_exotica/dijet/dazsle/zprimebits-v12.05/Spin0_ggPhibb1j_g1_125_Scalar/Output.root_job0_file0_subjob7.root
+root://eoscms.cern.ch//eos/cms/store/group/phys_exotica/dijet/dazsle/zprimebits-v12.05/Spin0_ggPhibb1j_g1_125_Scalar/Output.root_job0_file0_subjob8.root
+root://eoscms.cern.ch//eos/cms/store/group/phys_exotica/dijet/dazsle/zprimebits-v12.05/Spin0_ggPhibb1j_g1_125_Scalar/Output.root_job0_file0_subjob9.root

@@ -1,0 +1,1 @@
+root://eoscms.cern.ch//eos/cms/store/group/phys_exotica/dijet/dazsle/zprimebits-v12.04/Spin0_ggPhi12j_g1_50_PseudoScalar_13TeV_madgraph/Output.root_job0_file0.root

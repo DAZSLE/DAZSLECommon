@@ -616,6 +616,9 @@ public :
    Float_t         antitopPt;
    Float_t         topPtWeight;
 
+   Float_t psWeights[20];
+
+
    // List of branches
    TBranch        *b_fRun;   //!
    TBranch        *b_fLumi;   //!
@@ -1210,6 +1213,7 @@ public :
    TBranch        *b_fTopPt;   //!
    TBranch        *b_fAntitopPt;   //!
    TBranch        *b_fTopPtWeight;   //!
+   TBranch *b_fpsWeights[20]; //!
 
    BaconTree(TTree *tree=0);
    virtual ~BaconTree();
@@ -1874,6 +1878,12 @@ void BaconTree::Init(TTree *tree)
    fChain->SetBranchAddress("topPt", &topPt, &b_fTopPt);
    fChain->SetBranchAddress("antitopPt", &antitopPt, &b_fAntitopPt);
    fChain->SetBranchAddress("topPtWeight", &topPtWeight, &b_fTopPtWeight);
+
+   for (int i = 0; i < 20; ++i) {
+      std::string branchName = std::string("psWeight") + std::to_string(i);
+      fChain->SetBranchAddress(branchName.c_str(), &psWeights[i], &b_fpsWeights[i]);
+   }
+
    Notify();
 }
 

@@ -1,0 +1,1 @@
+root://cmsxrootd-site.fnal.gov//store/user/lpchbb/zprimebits-v12.04/norm2/cvernier/ggZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8_1000pb_weighted.root

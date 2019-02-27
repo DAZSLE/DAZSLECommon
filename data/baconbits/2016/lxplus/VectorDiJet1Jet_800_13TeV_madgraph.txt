@@ -1,0 +1,1 @@
+/eos/cms/store/group/phys_exotica/dijet/dazsle/zprimebits-v12.05/VectorDiJet1Jet_800_13TeV_madgraph/Output.root_job0_file0.root
